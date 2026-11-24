@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MDT</title>
+<style>
+  body { font-family: Arial, sans-serif; background: #0d1117; color: #e6edf3; margin: 0; padding: 16px; }
+  h1 { margin-top: 0; }
+  nav button { background: #21262d; color: #e6edf3; border: 1px solid #30363d; padding: 10px 16px; margin-right: 6px; border-radius: 6px; cursor: pointer; }
+  nav button.aktiv { background: #1f6feb; }
+  section { display: none; margin-top: 16px; }
+  section.aktiv { display: block; }
+  input, select, textarea { background: #161b22; color: #e6edf3; border: 1px solid #30363d; border-radius: 6px; padding: 8px; margin: 4px 4px 4px 0; max-width: 100%; }
+  textarea { width: 100%; box-sizing: border-box; min-height: 80px; }
+  .gomb { background: #238636; color: #fff; border: 0; padding: 8px 14px; border-radius: 6px; cursor: pointer; }
+  .torol { background: #da3633; }
+  .kartya { background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 10px; margin: 8px 0; }
+  .szolgalat { color: #3fb950; font-weight: bold; }
+  .nincs { color: #8b949e; }
+</style>
+</head>
+<body>
+<h1>Rendőrségi MDT</h1>
+<nav>
+  <button id="b-rendorok" class="aktiv" onclick="valt('rendorok')">Rendőrök</button>
+  <button id="b-jelentesek" onclick="valt('jelentesek')">Jelentések</button>
+</nav>
+
+<section id="rendorok" class="aktiv">
+  <h2>Új rendőr</h2>
+  <input id="nev" placeholder="Név">
+  <input id="jelveny" placeholder="Jelvényszám">
+  <input id="rang" placeholder="Rang">
+  <button class="gomb" onclick="rendorHozzaad()">Hozzáadás</button>
+  <h2>Lista</h2>
+  <div id="rendorLista"></div>
+</section>
+
+<section id="jelentesek">
+  <h2>Új jelentés</h2>
+  <select id="jSzerzo"></select>
+  <input id="jCim" placeholder="Cím">
+  <textarea id="jSzoveg" placeholder="Jelentés szövege"></textarea>
+  <button class="gomb" onclick="jelentesHozzaad()">Mentés</button>
+  <h2>Jelentések</h2>
+  <div id="jelentesLista"></div>
+</section>
+
+<script>
+  let rendorok = [];
+  let jelentesek = [];
+
+  function betolt() {
+    try {
+      rendorok = JSON.parse(localStorage.getItem('mdt_rendorok')) || [];
+      jelentesek = JSON.parse(localStorage.getItem('mdt_jelentesek')) || [];
+    } catch (e) { rendorok = []; jelentesek = []; }
+  }
+  function ment() {
+    try {
+      localStorage.setItem('mdt_rendorok', JSON.stringify(rendorok));
+      localStorage.setItem('mdt_jelentesek', JSON.stringify(jelentesek));
+    } catch (e) {}
+  }
+  function szoveg(s) {
+    const d = document.createElement('div');
+    d.textContent = s;
+    return d.innerHTML;
+  }
+  function valt(nev) {
+    ['rendorok', 'jelentesek'].forEach(n => {
+      document.getElementById(n).classList.toggle('aktiv', n === nev);
+      document.getElementById('b-' + n).classList.toggle('aktiv', n === nev);
+    });
+  }
+  function rendorHozzaad() {
+    const nev = document.getElementById('nev').value.trim();
+    const jelveny = document.getElementById('jelveny').value.trim();
+    const rang = document.getElementById('rang').value.trim();
+    if (!nev) return;
+    rendorok.push({ nev, jelveny, rang, szolgalatban: false });
+    document.getElementById('nev').value = '';
+    document.getElementById('jelveny').value = '';
+    document.getElementById('rang').value = '';
+    ment(); rajzol();
+  }
+  function szolgalatValt(i) { rendorok[i].szolgalatban = !rendorok[i].szolgalatban; ment(); rajzol(); }
+  function rendorTorol(i) { rendorok.splice(i, 1); ment(); rajzol(); }
+  function jelentesHozzaad() {
+    const szerzo = document.getElementById('jSzerzo').value;
+    const cim = document.getElementById('jCim').value.trim();
+    const tartalom = document.getElementById('jSzoveg').value.trim();
+    if (!cim || !tartalom) return;
+    jelentesek.unshift({ szerzo, cim, tartalom, ido: new Date().toLocaleString('hu-HU') });
+    document.getElementById('jCim').value = '';
+    document.getElementById('jSzoveg').value = '';
+    ment(); rajzol();
+  }
+  function jelentesTorol(i) { jelentesek.splice(i, 1); ment(); rajzol(); }
+
+  function rajzol() {
+    document.getElementById('rendorLista').innerHTML = rendorok.map((r, i) =>
+      '<div class="kartya"><b>' + szoveg(r.nev) + '</b> | Jelvény: ' + szoveg(r.jelveny) +
+      ' | Rang: ' + szoveg(r.rang) + ' | ' +
+      (r.szolgalatban ? '<span class="szolgalat">Szolgálatban</span>' : '<span class="nincs">Nincs szolgálatban</span>') +
+      '<br><button class="gomb" onclick="szolgalatValt(' + i + ')">Szolgálat be/ki</button> ' +
+      '<button class="gomb torol" onclick="rendorTorol(' + i + ')">Törlés</button></div>'
+    ).join('') || '<p class="nincs">Még nincs rendőr.</p>';
+
+    document.getElementById('jSzerzo').innerHTML = rendorok.map(r =>
+      '<option>' + szoveg(r.nev) + '</option>').join('');
+
+    document.getElementById('jelentesLista').innerHTML = jelentesek.map((j, i) =>
+      '<div class="kartya"><b>' + szoveg(j.cim) + '</b><br><small>' + szoveg(j.szerzo) +
+      ' | ' + szoveg(j.ido) + '</small><p>' + szoveg(j.tartalom) + '</p>' +
+      '<button class="gomb torol" onclick="jelentesTorol(' + i + ')">Törlés</button></div>'
+    ).join('') || '<p class="nincs">Még nincs jelentés.</p>';
+  }
+
+  betolt();
+  rajzol();
+</script>
+</body>
+</html>
