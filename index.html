@@ -1,39 +1,327 @@
+
 <!DOCTYPE html>
 <html lang="hu">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>MDT</title>
+<title>Rendőrségi MDT</title>
+
 <style>
-  body { font-family: Arial, sans-serif; background: #0d1117; color: #e6edf3; margin: 0; padding: 16px; }
-  h1 { margin-top: 0; }
-  nav button { background: #21262d; color: #e6edf3; border: 1px solid #30363d; padding: 10px 16px; margin-right: 6px; border-radius: 6px; cursor: pointer; }
-  nav button.aktiv { background: #1f6feb; }
-  .tartalom { margin: 70px 0 0 120px; font-size: 20px; }
-  @media (max-width: 700px) { .tartalom { margin: 40px 0 0 16px; font-size: 18px; } }
-  section { display: none; }
-  section.aktiv { display: block; }
-  h2 { font-size: 28px; }
-  h2.lista { margin-top: 50px; }
-  input, select, textarea { font-size: 18px; background: #161b22; color: #e6edf3; border: 1px solid #30363d; border-radius: 6px; padding: 12px; margin: 6px 6px 6px 0; max-width: 100%; }
-  textarea { width: 100%; box-sizing: border-box; min-height: 120px; }
-  .gomb, .torol { color: #fff; border: 0; padding: 12px 20px; font-size: 18px; border-radius: 6px; cursor: pointer; margin-top: 6px; }
-  .gomb { background: #238636; }
-  .torol { background: #da3633; }
-  .kartya { background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 14px; margin: 10px 0; }
-  .fejlec { display: flex; justify-content: space-between; gap: 12px; }
-  .ido { color: #8b949e; font-size: 16px; }
-  .szolgalat { color: #3fb950; font-weight: bold; }
-  .nincs { color: #8b949e; }
-  .en { color: #58a6ff; font-size: 16px; }
-  .hiba { color: #ff7b72; }
+:root {
+  --hatter: #071426;
+  --panel: #10243e;
+  --panel2: #142d4d;
+  --kek: #1769aa;
+  --vilagos: #54b9ff;
+  --szoveg: #edf6ff;
+  --halvany: #a9c3dc;
+  --zold: #35d39a;
+  --piros: #f06470;
+  --keret: #244667;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 24px;
+  font-family: "Segoe UI", Arial, sans-serif;
+  background:
+    radial-gradient(ellipse at top, #173d66 0%, transparent 48%),
+    var(--hatter);
+  color: var(--szoveg);
+  min-height: 100vh;
+}
+
+.fejlec {
+  max-width: 1100px;
+  margin: 0 auto 25px;
+  padding: 25px;
+  background: linear-gradient(120deg, #102d4e, #0b1c32);
+  border: 1px solid var(--keret);
+  border-radius: 18px;
+  box-shadow: 0 12px 35px #0005;
+}
+
+.fejlec-belso {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.cim-resz {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.szirena {
+  font-size: 48px;
+  filter: drop-shadow(0 0 12px #4daaff88);
+}
+
+h1 {
+  margin: 0;
+  font-size: clamp(25px, 4vw, 38px);
+  letter-spacing: 1px;
+  color: #ffffff;
+}
+
+.alcim {
+  margin-top: 7px;
+  color: var(--vilagos);
+  font-size: 14px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.rendorauto {
+  font-size: 58px;
+  filter: drop-shadow(0 5px 10px #0008);
+}
+
+nav {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+nav button {
+  background: #10243e;
+  color: var(--halvany);
+  border: 1px solid var(--keret);
+  padding: 13px 23px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 700;
+  transition: 0.2s;
+}
+
+nav button:hover {
+  background: #183858;
+  color: white;
+}
+
+nav button.aktiv {
+  background: linear-gradient(135deg, #1769aa, #2495df);
+  color: white;
+  border-color: var(--vilagos);
+  box-shadow: 0 4px 16px #168be855;
+}
+
+.tartalom {
+  max-width: 1100px;
+  margin: 25px auto;
+}
+
+section {
+  display: none;
+}
+
+section.aktiv {
+  display: block;
+}
+
+.panel {
+  background: linear-gradient(145deg, var(--panel), #0c1d32);
+  border: 1px solid var(--keret);
+  border-radius: 16px;
+  padding: 23px;
+  margin-bottom: 22px;
+  box-shadow: 0 8px 25px #0003;
+}
+
+h2 {
+  margin: 0 0 20px;
+  color: var(--vilagos);
+  font-size: 24px;
+}
+
+h2.lista {
+  margin-top: 28px;
+}
+
+input, select, textarea {
+  width: 100%;
+  max-width: 100%;
+  display: block;
+  margin: 10px 0;
+  padding: 14px 15px;
+  border: 1px solid var(--keret);
+  border-radius: 9px;
+  background: #091a2d;
+  color: white;
+  font-size: 16px;
+  outline: none;
+}
+
+input:focus, select:focus, textarea:focus {
+  border-color: var(--vilagos);
+  box-shadow: 0 0 0 3px #54b9ff22;
+}
+
+input::placeholder, textarea::placeholder {
+  color: #7894af;
+}
+
+select option {
+  background: #10243e;
+  color: white;
+}
+
+textarea {
+  min-height: 150px;
+  resize: vertical;
+}
+
+.gomb, .torol {
+  border: 0;
+  padding: 12px 19px;
+  border-radius: 9px;
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: 700;
+  margin: 6px 5px 4px 0;
+  transition: 0.2s;
+}
+
+.gomb {
+  background: linear-gradient(135deg, #1769aa, #2495df);
+  color: white;
+}
+
+.gomb:hover {
+  filter: brightness(1.15);
+  transform: translateY(-1px);
+}
+
+.torol {
+  background: #a92e43;
+  color: white;
+}
+
+.torol:hover {
+  background: #d43d55;
+}
+
+.kartya {
+  background: linear-gradient(135deg, #142e4c, #0e2037);
+  border: 1px solid #285078;
+  border-left: 4px solid var(--vilagos);
+  border-radius: 12px;
+  padding: 18px;
+  margin: 12px 0;
+  box-shadow: 0 5px 15px #0002;
+  overflow-wrap: anywhere;
+}
+
+.fejlec-kartya {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.ido {
+  color: var(--halvany);
+  font-size: 13px;
+}
+
+.szolgalat {
+  color: var(--zold);
+  font-weight: 700;
+}
+
+.nincs {
+  color: var(--halvany);
+}
+
+.en {
+  color: var(--vilagos);
+  font-size: 14px;
+}
+
+.hiba {
+  color: #ff8994;
+  background: #511e2a;
+  border: 1px solid #a92e43;
+  border-radius: 9px;
+  padding: 12px;
+  margin-bottom: 15px;
+  display: none;
+}
+
+.hiba:not(:empty) {
+  display: block;
+}
+
+.lablec {
+  max-width: 1100px;
+  margin: 35px auto 10px;
+  text-align: center;
+  color: #7894af;
+  font-size: 13px;
+}
+
+@media (max-width: 700px) {
+  body {
+    padding: 12px;
+  }
+
+  .fejlec {
+    padding: 18px;
+  }
+
+  .szirena {
+    font-size: 38px;
+  }
+
+  .rendorauto {
+    font-size: 42px;
+  }
+
+  nav button {
+    flex: 1;
+    padding: 12px 8px;
+  }
+
+  .panel {
+    padding: 16px;
+  }
+}
 </style>
 </head>
+
 <body>
-<h1>Rendőrségi MDT</h1>
+
+<header class="fejlec">
+  <div class="fejlec-belso">
+    <div class="cim-resz">
+      <div class="szirena">🚨</div>
+      <div>
+        <h1>Rendőrségi MDT</h1>
+        <div class="alcim">Rendőrségi adatkezelő rendszer</div>
+      </div>
+    </div>
+    <div class="rendorauto">🚓</div>
+  </div>
+</header>
+
 <nav>
-  <button id="b-rendorok" class="aktiv" onclick="valt('rendorok')">Rendőrök</button>
-  <button id="b-jelentesek" onclick="valt('jelentesek')">Jelentések</button>
+  <button id="b-rendorok" class="aktiv" onclick="valt('rendorok')">
+    👮 Rendőrök
+  </button>
+  <button id="b-jelentesek" onclick="valt('jelentesek')">
+    📋 Jelentések
+  </button>
 </nav>
 
 <div class="tartalom">
@@ -41,183 +329,335 @@
 <div id="hiba" class="hiba"></div>
 
 <section id="rendorok" class="aktiv">
-  <div id="ujRendor">
-    <h2>Új rendőr</h2>
-    <input id="nev" placeholder="Név">
+
+  <div class="panel" id="ujRendor">
+    <h2>➕ Új rendőr felvétele</h2>
+
+    <input id="nev" placeholder="Rendőr neve">
     <input id="jelveny" placeholder="Jelvényszám">
-    <input id="rang" placeholder="Rang">
-    <button class="gomb" onclick="rendorHozzaad()">Hozzáadás</button>
+    <input id="rang" placeholder="Rendfokozat">
+
+    <button class="gomb" onclick="rendorHozzaad()">
+      Rendőr hozzáadása
+    </button>
   </div>
-  <h2 class="lista">Lista</h2>
-  <div id="rendorLista"></div>
+
+  <div class="panel">
+    <h2 class="lista">👮 Rendőrök listája</h2>
+    <div id="rendorLista"></div>
+  </div>
+
 </section>
 
 <section id="jelentesek">
-  <h2>Új jelentés</h2>
-  <select id="jSzerzo"></select>
-  <input id="jCim" placeholder="Cím">
-  <textarea id="jSzoveg" placeholder="Jelentés szövege"></textarea>
-  <button class="gomb" onclick="jelentesHozzaad()">Mentés</button>
-  <h2 class="lista">Jelentések</h2>
-  <div id="jelentesLista"></div>
+
+  <div class="panel">
+    <h2>📝 Új jelentés készítése</h2>
+
+    <select id="jSzerzo"></select>
+    <input id="jCim" placeholder="Jelentés címe">
+    <textarea id="jSzoveg" placeholder="Jelentés szövege..."></textarea>
+
+    <button class="gomb" onclick="jelentesHozzaad()">
+      Jelentés mentése
+    </button>
+  </div>
+
+  <div class="panel">
+    <h2 class="lista">📋 Korábbi jelentések</h2>
+    <div id="jelentesLista"></div>
+  </div>
+
 </section>
 
 </div>
 
+<div class="lablec">
+  Rendőrségi MDT – Belső rendszer
+</div>
+
 <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
-  import { getFirestore, collection, addDoc, doc, updateDoc, deleteDoc, onSnapshot, query, orderBy }
-    from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyDMJ6HopderUazNc2ABDDrrYyFpYX6h9bY",
-    authDomain: "mdt0-c07d4.firebaseapp.com",
-    projectId: "mdt0-c07d4",
-    storageBucket: "mdt0-c07d4.firebasestorage.app",
-    messagingSenderId: "760990096469",
-    appId: "1:760990096469:web:6dd44b8950078bd09d88dc"
-  };
+import {
+  getFirestore,
+  collection,
+  addDoc,
+  doc,
+  updateDoc,
+  deleteDoc,
+  onSnapshot,
+  query,
+  orderBy
+} from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
 
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
+const firebaseConfig = {
+  apiKey: "AIzaSyDMJ6HopderUazNc2ABDDrrYyFpYX6h9bY",
+  authDomain: "mdt0-c07d4.firebaseapp.com",
+  projectId: "mdt0-c07d4",
+  storageBucket: "mdt0-c07d4.firebasestorage.app",
+  messagingSenderId: "760990096469",
+  appId: "1:760990096469:web:6dd44b8950078bd09d88dc"
+};
 
-  let rendorok = [];
-  let jelentesek = [];
-  let rendorokBetoltve = false;
-  let sajatId = null;
-  try { sajatId = localStorage.getItem('mdt_sajat_id'); } catch (e) {}
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
-  function szoveg(s) {
-    const d = document.createElement('div');
-    d.textContent = (s === undefined || s === null) ? '' : s;
-    return d.innerHTML;
+let rendorok = [];
+let jelentesek = [];
+let rendorokBetoltve = false;
+let sajatId = null;
+
+try {
+  sajatId = localStorage.getItem("mdt_sajat_id");
+} catch (e) {}
+
+function szoveg(s) {
+  const d = document.createElement("div");
+  d.textContent = (s === undefined || s === null) ? "" : s;
+  return d.innerHTML;
+}
+
+function hibaKiir(uzenet) {
+  const elem = document.getElementById("hiba");
+  elem.textContent = uzenet;
+}
+
+window.valt = function(nev) {
+  ["rendorok", "jelentesek"].forEach(function(n) {
+    document.getElementById(n).classList.toggle("aktiv", n === nev);
+    document.getElementById("b-" + n).classList.toggle("aktiv", n === nev);
+  });
+};
+
+window.rendorHozzaad = async function() {
+  const nev = document.getElementById("nev").value.trim();
+  const jelveny = document.getElementById("jelveny").value.trim();
+  const rang = document.getElementById("rang").value.trim();
+
+  if (!nev) {
+    hibaKiir("Kérlek, add meg a rendőr nevét!");
+    return;
   }
-  function hibaKiir(uzenet) {
-    document.getElementById('hiba').textContent = uzenet;
-  }
 
-  window.valt = function (nev) {
-    ['rendorok', 'jelentesek'].forEach(function (n) {
-      document.getElementById(n).classList.toggle('aktiv', n === nev);
-      document.getElementById('b-' + n).classList.toggle('aktiv', n === nev);
+  try {
+    const ref = await addDoc(collection(db, "rendorok"), {
+      nev: nev,
+      jelveny: jelveny,
+      rang: rang,
+      szolgalatban: false,
+      letrehozva: Date.now()
     });
-  };
 
-  window.rendorHozzaad = async function () {
-    const nev = document.getElementById('nev').value.trim();
-    const jelveny = document.getElementById('jelveny').value.trim();
-    const rang = document.getElementById('rang').value.trim();
-    if (!nev) return;
+    sajatId = ref.id;
+
     try {
-      const ref = await addDoc(collection(db, 'rendorok'), {
-        nev: nev, jelveny: jelveny, rang: rang, szolgalatban: false, letrehozva: Date.now()
-      });
-      sajatId = ref.id;
-      try { localStorage.setItem('mdt_sajat_id', sajatId); } catch (e) {}
-      document.getElementById('nev').value = '';
-      document.getElementById('jelveny').value = '';
-      document.getElementById('rang').value = '';
-      hibaKiir('');
-      rajzol();
-    } catch (e) {
-      hibaKiir('Nem sikerült menteni a rendőrt: ' + e.message);
-    }
-  };
+      localStorage.setItem("mdt_sajat_id", sajatId);
+    } catch (e) {}
 
-  window.szolgalatValt = async function (id) {
-    const r = rendorok.find(function (x) { return x.id === id; });
-    if (!r) return;
-    try {
-      await updateDoc(doc(db, 'rendorok', id), { szolgalatban: !r.szolgalatban });
-    } catch (e) {
-      hibaKiir('Nem sikerült módosítani: ' + e.message);
-    }
-  };
+    document.getElementById("nev").value = "";
+    document.getElementById("jelveny").value = "";
+    document.getElementById("rang").value = "";
 
-  window.rendorTorol = async function (id) {
-    try {
-      await deleteDoc(doc(db, 'rendorok', id));
-    } catch (e) {
-      hibaKiir('Nem sikerült törölni: ' + e.message);
-    }
-  };
+    hibaKiir("");
+    rajzol();
 
-  window.jelentesHozzaad = async function () {
-    const szerzo = document.getElementById('jSzerzo').value;
-    const cim = document.getElementById('jCim').value.trim();
-    const tartalom = document.getElementById('jSzoveg').value.trim();
-    if (!szerzo) { hibaKiir('Jelentés írásához előbb vegyél fel egy rendőrt.'); return; }
-    if (!cim || !tartalom) return;
-    try {
-      await addDoc(collection(db, 'jelentesek'), {
-        szerzo: szerzo, cim: cim, tartalom: tartalom, ido: Date.now()
-      });
-      document.getElementById('jCim').value = '';
-      document.getElementById('jSzoveg').value = '';
-      hibaKiir('');
-    } catch (e) {
-      hibaKiir('Nem sikerült menteni a jelentést: ' + e.message);
-    }
-  };
+  } catch (e) {
+    hibaKiir("Nem sikerült menteni a rendőrt: " + e.message);
+  }
+};
 
-  window.jelentesTorol = async function (id) {
-    try {
-      await deleteDoc(doc(db, 'jelentesek', id));
-    } catch (e) {
-      hibaKiir('Nem sikerült törölni: ' + e.message);
-    }
-  };
+window.szolgalatValt = async function(id) {
+  const r = rendorok.find(function(x) {
+    return x.id === id;
+  });
 
-  function rajzol() {
-    // Ha a saját rendőr törölve lett, újra megjelenik az űrlap
-    if (rendorokBetoltve && sajatId && !rendorok.some(function (r) { return r.id === sajatId; })) {
-      sajatId = null;
-      try { localStorage.removeItem('mdt_sajat_id'); } catch (e) {}
-    }
-    document.getElementById('ujRendor').style.display = sajatId ? 'none' : 'block';
+  if (!r) return;
 
-    document.getElementById('rendorLista').innerHTML = rendorok.map(function (r) {
-      return '<div class="kartya"><b>' + szoveg(r.nev) + '</b>' +
-        (r.id === sajatId ? ' <span class="en">(te)</span>' : '') +
-        ' | Jelvény: ' + szoveg(r.jelveny) +
-        ' | Rang: ' + szoveg(r.rang) + ' | ' +
-        (r.szolgalatban ? '<span class="szolgalat">Szolgálatban</span>' : '<span class="nincs">Nincs szolgálatban</span>') +
-        '<br><button class="gomb" onclick="szolgalatValt(\'' + r.id + '\')">Szolgálat be/ki</button> ' +
-        '<button class="torol" onclick="rendorTorol(\'' + r.id + '\')">Törlés</button></div>';
-    }).join('') || '<p class="nincs">Még nincs rendőr.</p>';
+  try {
+    await updateDoc(doc(db, "rendorok", id), {
+      szolgalatban: !r.szolgalatban
+    });
+  } catch (e) {
+    hibaKiir("Nem sikerült módosítani: " + e.message);
+  }
+};
 
-    const select = document.getElementById('jSzerzo');
-    const elozo = select.value;
-    select.innerHTML = rendorok.map(function (r) {
-      const kivalasztva = elozo ? (r.nev === elozo) : (r.id === sajatId);
-      return '<option' + (kivalasztva ? ' selected' : '') + '>' + szoveg(r.nev) + '</option>';
-    }).join('');
+window.rendorTorol = async function(id) {
+  try {
+    await deleteDoc(doc(db, "rendorok", id));
+  } catch (e) {
+    hibaKiir("Nem sikerült törölni: " + e.message);
+  }
+};
 
-    document.getElementById('jelentesLista').innerHTML = jelentesek.map(function (j) {
-      return '<div class="kartya"><div class="fejlec"><b>' + szoveg(j.cim) + '</b>' +
-        '<span class="ido">' + szoveg(new Date(j.ido).toLocaleString('hu-HU')) + '</span></div>' +
-        '<small>' + szoveg(j.szerzo) + '</small><p>' + szoveg(j.tartalom) + '</p>' +
-        '<button class="torol" onclick="jelentesTorol(\'' + j.id + '\')">Törlés</button></div>';
-    }).join('') || '<p class="nincs">Még nincs jelentés.</p>';
+window.jelentesHozzaad = async function() {
+  const szerzo = document.getElementById("jSzerzo").value;
+  const cim = document.getElementById("jCim").value.trim();
+  const tartalom = document.getElementById("jSzoveg").value.trim();
+
+  if (!szerzo) {
+    hibaKiir("Jelentés írásához előbb vegyél fel egy rendőrt.");
+    return;
   }
 
-  onSnapshot(query(collection(db, 'rendorok'), orderBy('letrehozva')), function (snap) {
-    rendorok = snap.docs.map(function (d) { return Object.assign({ id: d.id }, d.data()); });
+  if (!cim || !tartalom) {
+    hibaKiir("Kérlek, töltsd ki a jelentés címét és szövegét!");
+    return;
+  }
+
+  try {
+    await addDoc(collection(db, "jelentesek"), {
+      szerzo: szerzo,
+      cim: cim,
+      tartalom: tartalom,
+      ido: Date.now()
+    });
+
+    document.getElementById("jCim").value = "";
+    document.getElementById("jSzoveg").value = "";
+
+    hibaKiir("");
+
+  } catch (e) {
+    hibaKiir("Nem sikerült menteni a jelentést: " + e.message);
+  }
+};
+
+window.jelentesTorol = async function(id) {
+  try {
+    await deleteDoc(doc(db, "jelentesek", id));
+  } catch (e) {
+    hibaKiir("Nem sikerült törölni: " + e.message);
+  }
+};
+
+function rajzol() {
+
+  if (
+    rendorokBetoltve &&
+    sajatId &&
+    !rendorok.some(function(r) {
+      return r.id === sajatId;
+    })
+  ) {
+    sajatId = null;
+
+    try {
+      localStorage.removeItem("mdt_sajat_id");
+    } catch (e) {}
+  }
+
+  document.getElementById("ujRendor").style.display =
+    sajatId ? "none" : "block";
+
+  document.getElementById("rendorLista").innerHTML =
+    rendorok.map(function(r) {
+
+      return `
+        <div class="kartya">
+          <div class="fejlec-kartya">
+            <b>${szoveg(r.nev)}
+              ${r.id === sajatId ? '<span class="en">(te)</span>' : ""}
+            </b>
+          </div>
+
+          <p>Jelvényszám: ${szoveg(r.jelveny)}</p>
+          <p>Rendfokozat: ${szoveg(r.rang)}</p>
+
+          <p>
+            ${r.szolgalatban
+              ? '<span class="szolgalat">● Szolgálatban</span>'
+              : '<span class="nincs">● Nincs szolgálatban</span>'
+            }
+          </p>
+
+          <button class="gomb"
+            onclick="szolgalatValt('${r.id}')">
+            Szolgálat be/ki
+          </button>
+
+          <button class="torol"
+            onclick="rendorTorol('${r.id}')">
+            Törlés
+          </button>
+        </div>
+      `;
+
+    }).join("") || '<p class="nincs">Még nincs felvett rendőr.</p>';
+
+  const select = document.getElementById("jSzerzo");
+  const elozo = select.value;
+
+  select.innerHTML = rendorok.map(function(r) {
+    const kivalasztva = elozo
+      ? r.nev === elozo
+      : r.id === sajatId;
+
+    return `
+      <option ${kivalasztva ? "selected" : ""}>
+        ${szoveg(r.nev)}
+      </option>
+    `;
+  }).join("");
+
+  document.getElementById("jelentesLista").innerHTML =
+    jelentesek.map(function(j) {
+
+      return `
+        <div class="kartya">
+          <div class="fejlec-kartya">
+            <b>${szoveg(j.cim)}</b>
+            <span class="ido">
+              ${szoveg(new Date(j.ido).toLocaleString("hu-HU"))}
+            </span>
+          </div>
+
+          <p class="ido">Készítette: ${szoveg(j.szerzo)}</p>
+          <p>${szoveg(j.tartalom)}</p>
+
+          <button class="torol"
+            onclick="jelentesTorol('${j.id}')">
+            Jelentés törlése
+          </button>
+        </div>
+      `;
+
+    }).join("") || '<p class="nincs">Még nincs jelentés.</p>';
+}
+
+onSnapshot(
+  query(collection(db, "rendorok"), orderBy("letrehozva")),
+  function(snap) {
+    rendorok = snap.docs.map(function(d) {
+      return Object.assign({ id: d.id }, d.data());
+    });
+
     rendorokBetoltve = true;
-    hibaKiir('');
+    hibaKiir("");
     rajzol();
-  }, function (e) {
-    hibaKiir('Nem sikerült betölteni a rendőröket: ' + e.message);
-  });
+  },
+  function(e) {
+    hibaKiir("Nem sikerült betölteni a rendőröket: " + e.message);
+  }
+);
 
-  onSnapshot(query(collection(db, 'jelentesek'), orderBy('ido', 'desc')), function (snap) {
-    jelentesek = snap.docs.map(function (d) { return Object.assign({ id: d.id }, d.data()); });
+onSnapshot(
+  query(collection(db, "jelentesek"), orderBy("ido", "desc")),
+  function(snap) {
+    jelentesek = snap.docs.map(function(d) {
+      return Object.assign({ id: d.id }, d.data());
+    });
+
     rajzol();
-  }, function (e) {
-    hibaKiir('Nem sikerült betölteni a jelentéseket: ' + e.message);
-  });
+  },
+  function(e) {
+    hibaKiir("Nem sikerült betölteni a jelentéseket: " + e.message);
+  }
+);
 
-  rajzol();
+rajzol();
 </script>
+
 </body>
 </html>
