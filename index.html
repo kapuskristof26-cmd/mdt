@@ -70,7 +70,7 @@ input:focus,select:focus,textarea:focus{
 input::placeholder,textarea::placeholder{color:#7894af}
 select option{background:#10243e;color:white}
 textarea{min-height:130px;resize:vertical}
-.gomb,.torol{
+.gomb,.torol,.szerkeszt{
   border:0;padding:12px 19px;border-radius:9px;cursor:pointer;
   font-size:15px;font-weight:700;margin:6px 5px 4px 0;transition:.2s
 }
@@ -78,6 +78,8 @@ textarea{min-height:130px;resize:vertical}
 .gomb:hover{filter:brightness(1.15);transform:translateY(-1px)}
 .torol{background:#a92e43;color:white}
 .torol:hover{background:#d43d55}
+.szerkeszt{background:#287b62;color:white}
+.szerkeszt:hover{background:#35a17e}
 .kartya{
   background:linear-gradient(135deg,#142e4c,#0e2037);
   border:1px solid #285078;border-left:4px solid var(--vilagos);
@@ -105,6 +107,8 @@ textarea{min-height:130px;resize:vertical}
   background:#0b1c32;border:1px solid var(--keret);padding:12px;
   border-radius:9px;color:var(--halvany);font-size:13px;margin:12px 0
 }
+.vezeto-urlap{display:block}
+.vezeto-urlap.elrejtve{display:none}
 @media(max-width:700px){
   body{padding:12px}.fejlec{padding:18px}.szirena{font-size:38px}
   .rendorauto{font-size:42px}nav button{flex:1;padding:12px 8px}
@@ -169,11 +173,16 @@ textarea{min-height:130px;resize:vertical}
 <section id="vezetoseg">
   <div class="panel">
     <h2>⭐ Vezetőségi tagok</h2>
-    <input id="vNev" placeholder="Vezetőségi tag neve">
-    <input id="vRang" placeholder="Beosztása a vezetőségben">
-    <button class="gomb" onclick="vezetoHozzaad()">Tag hozzáadása</button>
+
+    <div id="vezetoUrlap" class="vezeto-urlap">
+      <input id="vNev" placeholder="Vezetőségi tag neve">
+      <input id="vRang" placeholder="Beosztása a vezetőségben">
+      <button class="gomb" onclick="vezetoHozzaad()">Tag hozzáadása</button>
+    </div>
+
     <div id="vezetoLista"></div>
   </div>
+
   <div class="panel">
     <h2>📋 Vezetőségi jelentés készítése</h2>
     <input id="vJelSzerzo" placeholder="Jelentés készítője">
@@ -334,175 +343,348 @@ window.jelentesTorol = async function(id) {
   catch(e) { hibaKiir("Nem sikerült törölni: " + e.message); }
 };
 
-/* Vezetőség – helyi böngészőtárolás */
+/* VEZETŐSÉG – helyi böngészőtárolás */
+
 window.vezetoHozzaad = function() {
   const nev = document.getElementById("vNev").value.trim();
   const rang = document.getElementById("vRang").value.trim();
-  if (!nev || !rang) return hibaKiir("Add meg a vezetőségi tag nevét és beosztását!");
+
+  if (!nev || !rang) {
+    return hibaKiir("Add meg a vezetőségi tag nevét és beosztását!");
+  }
+
   const lista = helyiBetolt("mdt_vezetoseg");
-  lista.push({id:Date.now(),nev,rang});
+
+  lista.push({
+    id:Date.now(),
+    nev,
+    rang
+  });
+
   helyiMent("mdt_vezetoseg",lista);
+
   document.getElementById("vNev").value = "";
   document.getElementById("vRang").value = "";
+
   hibaKiir("");
   vezetosegRajzol();
 };
-window.vezetoTorol = function(id) {
-  if (!confirm("Biztosan törlöd ezt a vezetőségi tagot?")) return;
-  helyiMent("mdt_vezetoseg",helyiBetolt("mdt_vezetoseg").filter(x => x.id !== id));
+
+/* Vezetőségi tag szerkesztése */
+window.vezetoSzerkeszt = function(id) {
+  const lista = helyiBetolt("mdt_vezetoseg");
+  const vezeto = lista.find(x => String(x.id) === String(id));
+
+  if (!vezeto) {
+    return hibaKiir("A vezetőségi tag nem található.");
+  }
+
+  const ujNev = prompt("Vezetőségi tag új neve:", vezeto.nev);
+  if (ujNev === null) return;
+
+  const tisztaNev = ujNev.trim();
+  if (!tisztaNev) {
+    return hibaKiir("A név nem lehet üres!");
+  }
+
+  const ujRang = prompt("Vezetőségi tag új beosztása:", vezeto.rang);
+  if (ujRang === null) return;
+
+  const tisztaRang = ujRang.trim();
+  if (!tisztaRang) {
+    return hibaKiir("A beosztás nem lehet üres!");
+  }
+
+  vezeto.nev = tisztaNev;
+  vezeto.rang = tisztaRang;
+
+  helyiMent("mdt_vezetoseg",lista);
+  hibaKiir("");
   vezetosegRajzol();
 };
+
+/* Vezetőségi tag törlése */
+window.vezetoTorol = function(id) {
+  if (!confirm("Biztosan törlöd ezt a vezetőségi tagot?")) return;
+
+  const lista = helyiBetolt("mdt_vezetoseg")
+    .filter(x => String(x.id) !== String(id));
+
+  helyiMent("mdt_vezetoseg",lista);
+  hibaKiir("");
+  vezetosegRajzol();
+};
+
 window.vezetoJelentesHozzaad = function() {
   const szerzo = document.getElementById("vJelSzerzo").value.trim();
   const cim = document.getElementById("vJelCim").value.trim();
   const tartalom = document.getElementById("vJelSzoveg").value.trim();
-  if (!szerzo || !cim || !tartalom) return hibaKiir("Tölts ki minden mezőt!");
+
+  if (!szerzo || !cim || !tartalom) {
+    return hibaKiir("Tölts ki minden mezőt!");
+  }
+
   const lista = helyiBetolt("mdt_vezetosegi_jelentesek");
-  lista.unshift({id:Date.now(),szerzo,cim,tartalom,ido:Date.now()});
+
+  lista.unshift({
+    id:Date.now(),
+    szerzo,
+    cim,
+    tartalom,
+    ido:Date.now()
+  });
+
   helyiMent("mdt_vezetosegi_jelentesek",lista);
+
   document.getElementById("vJelCim").value = "";
   document.getElementById("vJelSzoveg").value = "";
+
   hibaKiir("");
   vezetosegRajzol();
 };
+
 window.vezetoJelentesTorol = function(id) {
   if (!confirm("Biztosan törlöd ezt a jelentést?")) return;
-  helyiMent("mdt_vezetosegi_jelentesek",helyiBetolt("mdt_vezetosegi_jelentesek").filter(x => x.id !== id));
+
+  helyiMent(
+    "mdt_vezetosegi_jelentesek",
+    helyiBetolt("mdt_vezetosegi_jelentesek")
+      .filter(x => String(x.id) !== String(id))
+  );
+
   vezetosegRajzol();
 };
+
 function vezetosegRajzol() {
   const vezetok = helyiBetolt("mdt_vezetoseg");
-  document.getElementById("vezetoLista").innerHTML = vezetok.map(v => `
-    <div class="kartya">
-      <b>${szoveg(v.nev)}</b><p>Beosztás: ${szoveg(v.rang)}</p>
-      <button class="torol" onclick="vezetoTorol(${v.id})">Törlés</button>
-    </div>`).join("") || '<p class="nincs">Még nincs vezetőségi tag.</p>';
+
+  /* Ha van legalább egy tag, elrejtjük a felvételi űrlapot.
+     Ha nincs tag, újra megjelenítjük. */
+  const urlap = document.getElementById("vezetoUrlap");
+  urlap.classList.toggle("elrejtve", vezetok.length > 0);
+
+  document.getElementById("vezetoLista").innerHTML =
+    vezetok.map(v => `
+      <div class="kartya">
+        <div class="fejlec-kartya">
+          <b>${szoveg(v.nev)}</b>
+          <span class="en">⭐ Vezetőségi tag</span>
+        </div>
+
+        <p>Beosztás: <b>${szoveg(v.rang)}</b></p>
+
+        <button class="szerkeszt" onclick="vezetoSzerkeszt('${String(v.id)}')">
+          ✏️ Szerkesztés
+        </button>
+
+        <button class="torol" onclick="vezetoTorol('${String(v.id)}')">
+          🗑️ Törlés
+        </button>
+      </div>
+    `).join("") || '<p class="nincs">Még nincs vezetőségi tag.</p>';
 
   const jelent = helyiBetolt("mdt_vezetosegi_jelentesek");
-  document.getElementById("vezetoJelentesLista").innerHTML = jelent.map(j => `
-    <div class="kartya">
-      <div class="fejlec-kartya"><b>${szoveg(j.cim)}</b><span class="ido">${new Date(j.ido).toLocaleString("hu-HU")}</span></div>
-      <p class="ido">Készítette: ${szoveg(j.szerzo)}</p>
-      <p>${szoveg(j.tartalom)}</p>
-      <button class="torol" onclick="vezetoJelentesTorol(${j.id})">Törlés</button>
-    </div>`).join("") || '<p class="nincs">Még nincs vezetőségi jelentés.</p>';
+
+  document.getElementById("vezetoJelentesLista").innerHTML =
+    jelent.map(j => `
+      <div class="kartya">
+        <div class="fejlec-kartya">
+          <b>${szoveg(j.cim)}</b>
+          <span class="ido">${new Date(j.ido).toLocaleString("hu-HU")}</span>
+        </div>
+        <p class="ido">Készítette: ${szoveg(j.szerzo)}</p>
+        <p>${szoveg(j.tartalom)}</p>
+        <button class="torol" onclick="vezetoJelentesTorol('${String(j.id)}')">
+          Törlés
+        </button>
+      </div>
+    `).join("") || '<p class="nincs">Még nincs vezetőségi jelentés.</p>';
 }
 
-/* Kiképzés és kadétok – helyi böngészőtárolás */
+/* KIKÉPZÉS ÉS KADÉTOK – HELYI BÖNGÉSZŐTÁROLÁS */
+
 window.kadetHozzaad = function() {
   const nev = document.getElementById("kNev").value.trim();
   const kikepzo = document.getElementById("kKikepzo").value.trim();
   const allapot = document.getElementById("kAllapot").value;
-  if (!nev || !kikepzo) return hibaKiir("Add meg a kadét és a kiképző nevét!");
+
+  if (!nev || !kikepzo) {
+    return hibaKiir("Add meg a kadét és a kiképző nevét!");
+  }
+
   const lista = helyiBetolt("mdt_kadetok");
   lista.push({id:Date.now(),nev,kikepzo,allapot});
   helyiMent("mdt_kadetok",lista);
+
   document.getElementById("kNev").value = "";
   document.getElementById("kKikepzo").value = "";
+
   hibaKiir("");
   kikepzesRajzol();
 };
+
 window.kadetAllapot = function(id,allapot) {
   const lista = helyiBetolt("mdt_kadetok");
-  const kadet = lista.find(x => x.id === id);
+  const kadet = lista.find(x => String(x.id) === String(id));
+
   if (kadet) kadet.allapot = allapot;
+
   helyiMent("mdt_kadetok",lista);
   kikepzesRajzol();
 };
+
 window.kadetTorol = function(id) {
   if (!confirm("Biztosan törlöd ezt a kadétot?")) return;
-  helyiMent("mdt_kadetok",helyiBetolt("mdt_kadetok").filter(x => x.id !== id));
+
+  helyiMent(
+    "mdt_kadetok",
+    helyiBetolt("mdt_kadetok").filter(x => String(x.id) !== String(id))
+  );
+
   kikepzesRajzol();
 };
+
 window.tananyagHozzaad = function() {
   const cim = document.getElementById("tCim").value.trim();
   const leiras = document.getElementById("tLeiras").value.trim();
-  if (!cim || !leiras) return hibaKiir("Add meg a tananyag címét és leírását!");
+
+  if (!cim || !leiras) {
+    return hibaKiir("Add meg a tananyag címét és leírását!");
+  }
+
   const lista = helyiBetolt("mdt_tananyagok");
   lista.unshift({id:Date.now(),cim,leiras});
   helyiMent("mdt_tananyagok",lista);
+
   document.getElementById("tCim").value = "";
   document.getElementById("tLeiras").value = "";
+
   hibaKiir("");
   kikepzesRajzol();
 };
+
 window.tananyagTorol = function(id) {
   if (!confirm("Biztosan törlöd ezt a tananyagot?")) return;
-  helyiMent("mdt_tananyagok",helyiBetolt("mdt_tananyagok").filter(x => x.id !== id));
+
+  helyiMent(
+    "mdt_tananyagok",
+    helyiBetolt("mdt_tananyagok").filter(x => String(x.id) !== String(id))
+  );
+
   kikepzesRajzol();
 };
+
 window.vizsgaHozzaad = function() {
   const cim = document.getElementById("vCim").value.trim();
   const leiras = document.getElementById("vLeiras").value.trim();
-  if (!cim || !leiras) return hibaKiir("Add meg a vizsga nevét és követelményeit!");
+
+  if (!cim || !leiras) {
+    return hibaKiir("Add meg a vizsga nevét és követelményeit!");
+  }
+
   const lista = helyiBetolt("mdt_vizsgak");
   lista.unshift({id:Date.now(),cim,leiras});
   helyiMent("mdt_vizsgak",lista);
+
   document.getElementById("vCim").value = "";
   document.getElementById("vLeiras").value = "";
+
   hibaKiir("");
   kikepzesRajzol();
 };
+
 window.vizsgaTorol = function(id) {
   if (!confirm("Biztosan törlöd ezt a vizsgát?")) return;
-  helyiMent("mdt_vizsgak",helyiBetolt("mdt_vizsgak").filter(x => x.id !== id));
+
+  helyiMent(
+    "mdt_vizsgak",
+    helyiBetolt("mdt_vizsgak").filter(x => String(x.id) !== String(id))
+  );
+
   kikepzesRajzol();
 };
 
-/* Belső kód emlékeztető – csak helyi tárolás */
+/* BELSŐ KÓD EMLÉKEZTETŐ – CSAK HELYI TÁROLÁS */
+
 window.kodMentese = function() {
   const nev = document.getElementById("belsoKodNev").value.trim();
   const kod = document.getElementById("belsoKod").value.trim();
-  if (!nev || !kod) return hibaKiir("Add meg a nevet és a belső kódot!");
+
+  if (!nev || !kod) {
+    return hibaKiir("Add meg a nevet és a belső kódot!");
+  }
+
   const lista = helyiBetolt("mdt_belso_kodok");
   const regi = lista.find(x => x.nev.toLowerCase() === nev.toLowerCase());
+
   if (regi) regi.kod = kod;
   else lista.push({id:Date.now(),nev,kod});
+
   helyiMent("mdt_belso_kodok",lista);
+
   document.getElementById("belsoKodNev").value = "";
   document.getElementById("belsoKod").value = "";
+
   hibaKiir("");
   kodRajzol();
 };
+
 window.kodTorol = function(id) {
   if (!confirm("Biztosan törlöd ezt a kódot?")) return;
-  helyiMent("mdt_belso_kodok",helyiBetolt("mdt_belso_kodok").filter(x => x.id !== id));
+
+  helyiMent(
+    "mdt_belso_kodok",
+    helyiBetolt("mdt_belso_kodok").filter(x => String(x.id) !== String(id))
+  );
+
   kodRajzol();
 };
+
 function kodRajzol() {
-  document.getElementById("kodLista").innerHTML = helyiBetolt("mdt_belso_kodok").map(x => `
-    <div class="kartya">
-      <b>${szoveg(x.nev)}</b><p>Belső kód: ${szoveg(x.kod)}</p>
-      <button class="torol" onclick="kodTorol(${x.id})">Törlés</button>
-    </div>`).join("") || '<p class="nincs">Még nincs mentett belső kód.</p>';
+  document.getElementById("kodLista").innerHTML =
+    helyiBetolt("mdt_belso_kodok").map(x => `
+      <div class="kartya">
+        <b>${szoveg(x.nev)}</b>
+        <p>Belső kód: ${szoveg(x.kod)}</p>
+        <button class="torol" onclick="kodTorol('${String(x.id)}')">Törlés</button>
+      </div>
+    `).join("") || '<p class="nincs">Még nincs mentett belső kód.</p>';
 }
 
 function kikepzesRajzol() {
-  document.getElementById("kadetLista").innerHTML = helyiBetolt("mdt_kadetok").map(k => `
-    <div class="kartya">
-      <b>${szoveg(k.nev)}</b>
-      <p>Kiképző: ${szoveg(k.kikepzo)}</p>
-      <p>Állapot: <b>${szoveg(k.allapot)}</b></p>
-      <select onchange="kadetAllapot(${k.id},this.value)">
-        <option ${k.allapot==="Kiképzés alatt"?"selected":""}>Kiképzés alatt</option>
-        <option ${k.allapot==="Vizsgára vár"?"selected":""}>Vizsgára vár</option>
-        <option ${k.allapot==="Sikeres vizsga"?"selected":""}>Sikeres vizsga</option>
-        <option ${k.allapot==="Sikertelen vizsga"?"selected":""}>Sikertelen vizsga</option>
-      </select>
-      <button class="torol" onclick="kadetTorol(${k.id})">Kadét törlése</button>
-    </div>`).join("") || '<p class="nincs">Még nincs felvett kadét.</p>';
+  document.getElementById("kadetLista").innerHTML =
+    helyiBetolt("mdt_kadetok").map(k => `
+      <div class="kartya">
+        <b>${szoveg(k.nev)}</b>
+        <p>Kiképző: ${szoveg(k.kikepzo)}</p>
+        <p>Állapot: <b>${szoveg(k.allapot)}</b></p>
+        <select onchange="kadetAllapot('${String(k.id)}',this.value)">
+          <option ${k.allapot==="Kiképzés alatt"?"selected":""}>Kiképzés alatt</option>
+          <option ${k.allapot==="Vizsgára vár"?"selected":""}>Vizsgára vár</option>
+          <option ${k.allapot==="Sikeres vizsga"?"selected":""}>Sikeres vizsga</option>
+          <option ${k.allapot==="Sikertelen vizsga"?"selected":""}>Sikertelen vizsga</option>
+        </select>
+        <button class="torol" onclick="kadetTorol('${String(k.id)}')">Kadét törlése</button>
+      </div>
+    `).join("") || '<p class="nincs">Még nincs felvett kadét.</p>';
 
-  document.getElementById("tananyagLista").innerHTML = helyiBetolt("mdt_tananyagok").map(t => `
-    <div class="kartya">
-      <b>${szoveg(t.cim)}</b><p>${szoveg(t.leiras)}</p>
-      <button class="torol" onclick="tananyagTorol(${t.id})">Tananyag törlése</button>
-    </div>`).join("") || '<p class="nincs">Még nincs tananyag.</p>';
+  document.getElementById("tananyagLista").innerHTML =
+    helyiBetolt("mdt_tananyagok").map(t => `
+      <div class="kartya">
+        <b>${szoveg(t.cim)}</b>
+        <p>${szoveg(t.leiras)}</p>
+        <button class="torol" onclick="tananyagTorol('${String(t.id)}')">Tananyag törlése</button>
+      </div>
+    `).join("") || '<p class="nincs">Még nincs tananyag.</p>';
 
-  document.getElementById("vizsgaLista").innerHTML = helyiBetolt("mdt_vizsgak").map(v => `
-    <div class="kartya">
-      <b>${szoveg(v.cim)}</b><p>${szoveg(v.leiras)}</p>
-      <button class="torol" onclick="vizsgaTorol(${v.id})">Vizsga törlése</button>
-    </div>`).join("") || '<p class="nincs">Még nincs vizsgakövetelmény.</p>';
+  document.getElementById("vizsgaLista").innerHTML =
+    helyiBetolt("mdt_vizsgak").map(v => `
+      <div class="kartya">
+        <b>${szoveg(v.cim)}</b>
+        <p>${szoveg(v.leiras)}</p>
+        <button class="torol" onclick="vizsgaTorol('${String(v.id)}')">Vizsga törlése</button>
+      </div>
+    `).join("") || '<p class="nincs">Még nincs vizsgakövetelmény.</p>';
 
   kodRajzol();
 }
@@ -512,47 +694,65 @@ function rajzol() {
     sajatId = null;
     try { localStorage.removeItem("mdt_sajat_id"); } catch(e) {}
   }
+
   document.getElementById("ujRendor").style.display = sajatId ? "none" : "block";
 
-  document.getElementById("rendorLista").innerHTML = rendorok.map(r => `
-    <div class="kartya">
-      <div class="fejlec-kartya"><b>${szoveg(r.nev)} ${r.id===sajatId?'<span class="en">(te)</span>':""}</b></div>
-      <p>Jelvényszám: ${szoveg(r.jelveny)}</p>
-      <p>Rendfokozat: ${szoveg(r.rang)}</p>
-      <p>${r.szolgalatban?'<span class="szolgalat">● Szolgálatban</span>':'<span class="nincs">● Nincs szolgálatban</span>'}</p>
-      <button class="gomb" onclick="szolgalatValt('${r.id}')">Szolgálat be/ki</button>
-      <button class="torol" onclick="rendorTorol('${r.id}')">Törlés</button>
-    </div>`).join("") || '<p class="nincs">Még nincs felvett rendőr.</p>';
+  document.getElementById("rendorLista").innerHTML =
+    rendorok.map(r => `
+      <div class="kartya">
+        <div class="fejlec-kartya">
+          <b>${szoveg(r.nev)} ${r.id===sajatId?'<span class="en">(te)</span>':""}</b>
+        </div>
+        <p>Jelvényszám: ${szoveg(r.jelveny)}</p>
+        <p>Rendfokozat: ${szoveg(r.rang)}</p>
+        <p>${r.szolgalatban?'<span class="szolgalat">● Szolgálatban</span>':'<span class="nincs">● Nincs szolgálatban</span>'}</p>
+        <button class="gomb" onclick="szolgalatValt('${r.id}')">Szolgálat be/ki</button>
+        <button class="torol" onclick="rendorTorol('${r.id}')">Törlés</button>
+      </div>
+    `).join("") || '<p class="nincs">Még nincs felvett rendőr.</p>';
 
   const select = document.getElementById("jSzerzo");
   const elozo = select.value;
+
   select.innerHTML = rendorok.map(r => `
-    <option value="${szoveg(r.nev)}" ${elozo?r.nev===elozo?"selected":"":r.id===sajatId?"selected":""}>${szoveg(r.nev)}</option>
+    <option value="${szoveg(r.nev)}" ${elozo?r.nev===elozo?"selected":"":r.id===sajatId?"selected":""}>
+      ${szoveg(r.nev)}
+    </option>
   `).join("");
 
-  document.getElementById("jelentesLista").innerHTML = jelentesek.map(j => `
-    <div class="kartya">
-      <div class="fejlec-kartya">
-        <b>${szoveg(j.cim)}</b>
-        <span class="ido">${new Date(j.ido).toLocaleString("hu-HU")}</span>
+  document.getElementById("jelentesLista").innerHTML =
+    jelentesek.map(j => `
+      <div class="kartya">
+        <div class="fejlec-kartya">
+          <b>${szoveg(j.cim)}</b>
+          <span class="ido">${new Date(j.ido).toLocaleString("hu-HU")}</span>
+        </div>
+        <p class="ido">Készítette: ${szoveg(j.szerzo)}</p>
+        <p>${szoveg(j.tartalom)}</p>
+        <button class="torol" onclick="jelentesTorol('${j.id}')">Jelentés törlése</button>
       </div>
-      <p class="ido">Készítette: ${szoveg(j.szerzo)}</p>
-      <p>${szoveg(j.tartalom)}</p>
-      <button class="torol" onclick="jelentesTorol('${j.id}')">Jelentés törlése</button>
-    </div>`).join("") || '<p class="nincs">Még nincs jelentés.</p>';
+    `).join("") || '<p class="nincs">Még nincs jelentés.</p>';
 }
 
-onSnapshot(query(collection(db,"rendorok"),orderBy("letrehozva")),snap => {
-  rendorok = snap.docs.map(d => Object.assign({id:d.id},d.data()));
-  rendorokBetoltve = true;
-  hibaKiir("");
-  rajzol();
-},e => hibaKiir("Nem sikerült betölteni a rendőröket: " + e.message));
+onSnapshot(
+  query(collection(db,"rendorok"),orderBy("letrehozva")),
+  snap => {
+    rendorok = snap.docs.map(d => Object.assign({id:d.id},d.data()));
+    rendorokBetoltve = true;
+    hibaKiir("");
+    rajzol();
+  },
+  e => hibaKiir("Nem sikerült betölteni a rendőröket: " + e.message)
+);
 
-onSnapshot(query(collection(db,"jelentesek"),orderBy("ido","desc")),snap => {
-  jelentesek = snap.docs.map(d => Object.assign({id:d.id},d.data()));
-  rajzol();
-},e => hibaKiir("Nem sikerült betölteni a jelentéseket: " + e.message));
+onSnapshot(
+  query(collection(db,"jelentesek"),orderBy("ido","desc")),
+  snap => {
+    jelentesek = snap.docs.map(d => Object.assign({id:d.id},d.data()));
+    rajzol();
+  },
+  e => hibaKiir("Nem sikerült betölteni a jelentéseket: " + e.message)
+);
 
 vezetosegRajzol();
 kikepzesRajzol();
